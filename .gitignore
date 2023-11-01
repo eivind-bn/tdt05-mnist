@@ -163,3 +163,5 @@ cython_debug/
 MNIST
 .venv
 __pycache__
+*.autoencoder
+*.classifier
