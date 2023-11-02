@@ -16,11 +16,9 @@ class AutoEncoder(MnistEncoder[Image]):
                  lr: float) -> None:
         
         self.decoder = torch.nn.Sequential(
-            torch.nn.Linear(in_features=latent_size, out_features=3*28),
+            torch.nn.Linear(in_features=latent_size, out_features=7*28),
             torch.nn.ReLU(),
-            torch.nn.Linear(in_features=3*28,out_features=7*28),
-            torch.nn.ReLU(),
-            torch.nn.Linear(in_features=7*28,out_features=14*28),
+            torch.nn.Linear(in_features=7*28, out_features=14*28),
             torch.nn.ReLU(),
             torch.nn.Linear(in_features=14*28,out_features=28*28),
             torch.nn.ReLU(),
@@ -47,7 +45,7 @@ class AutoEncoder(MnistEncoder[Image]):
         return self.pil_to_tensor(input)
     
     def _output_transform(self, output: Tensor) -> Image:
-        return self.tensor_to_pil(torch.squeeze(output, 0).reshape((28,28)))
+        return self.tensor_to_pil(torch.squeeze(output, 0).reshape((28,28)) / output.max())
     
     def to_classifier(self, train_size: float) -> Classifier:
         classifier = Classifier(
@@ -62,7 +60,7 @@ class AutoEncoder(MnistEncoder[Image]):
         # Train can only shrink in size, but not grow in the new model.
         classifier._train_data = self._train_data[:train_size]
         classifier._train_target = self._train_target[:train_size]
-        classifier._train_target_one_hot = self._train_target[:train_size]
+        classifier._train_target_one_hot = self._train_target_one_hot[:train_size]
 
         # Train data can never become test-data. We simply transfer the old test.
         classifier._test_data = self._test_data
@@ -73,7 +71,7 @@ class AutoEncoder(MnistEncoder[Image]):
 
         return classifier
     
-    def compare_predictions(self, count: int) -> None:
+    def plot_predictions(self, count: int) -> None:
         comparisons = []
         for _ in range(count):
             pass

@@ -55,18 +55,16 @@ class MnistEncoder(ABC, Generic[T]):
             self.latent_size = layer.shape[1]
             break
 
-        assert self.latent_size != 0
+        assert self.latent_size > 0
 
         self.encoder = torch.nn.Sequential(
             torch.nn.Flatten(),
             torch.nn.Linear(in_features=28*28, out_features=14*28),
             torch.nn.ReLU(),
-            torch.nn.Linear(in_features=14*28,out_features=7*28),
+            torch.nn.Linear(in_features=14*28, out_features=7*28),
             torch.nn.ReLU(),
-            torch.nn.Linear(in_features=7*28,out_features=3*28),
-            torch.nn.ReLU(),
-            torch.nn.Linear(in_features=3*28,out_features=self.latent_size),
-            torch.nn.ReLU()
+            torch.nn.Linear(in_features=7*28,out_features=self.latent_size),
+            torch.nn.Sigmoid()
         )
 
         self.output_layers = output_layers
@@ -100,12 +98,13 @@ class MnistEncoder(ABC, Generic[T]):
 
     def forward(self, tensor: Tensor, use_grad: bool = False) -> Tensor:
         src_device = tensor.device
-        tensor = tensor.to(device=self.device, dtype=self.dtype)
+        tensor = tensor.to(device=self.device, dtype=self.dtype) / tensor.max()
         if use_grad:
             y_hat = cast(Tensor, self._logits.forward(tensor))
         else:
             with torch.no_grad():
                 y_hat = cast(Tensor, self._logits.forward(tensor))
+
         return y_hat.to(device=src_device)
 
     def minibatch(self, percent: float) -> MiniBatch:
