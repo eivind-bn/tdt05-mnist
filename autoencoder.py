@@ -1,11 +1,13 @@
 from typing import *
 import torch
+import random
 from torchvision.transforms import ToPILImage, PILToTensor
 from PIL.Image import Image
 from torch import Tensor
 from torch._tensor import Tensor
 from classifier import Classifier
 from mnist_encoder import *
+from matplotlib.axes import Axes
 
 class AutoEncoder(MnistEncoder[Image]):
 
@@ -47,12 +49,12 @@ class AutoEncoder(MnistEncoder[Image]):
     def _output_transform(self, output: Tensor) -> Image:
         return self.tensor_to_pil(torch.squeeze(output, 0).reshape((28,28)) / output.max())
     
-    def to_classifier(self, train_size: float) -> Classifier:
+    def to_classifier(self, train_size: float, lr: float|None = None) -> Classifier:
         classifier = Classifier(
             train_size=train_size,
             device=self.device,
             latent_size=self.latent_size,
-            lr=self.lr
+            lr=self.lr if lr is None else lr
         )
 
         train_size = int(self.mnist_size*train_size)
@@ -71,10 +73,20 @@ class AutoEncoder(MnistEncoder[Image]):
 
         return classifier
     
-    def plot_predictions(self, count: int) -> None:
-        comparisons = []
-        for _ in range(count):
-            pass
+    def plot_predictions(self) -> None:
+        fig, axes = plt.subplots(nrows=2, ncols=6, figsize=(10,4))
+        for i in range(6):
+            rand = random.randint(0,self._test_data.shape[0])
+            sample: Image = self._output_transform(self._test_data[rand]) 
+            recon = self.predict(sample)
+            ax0: Axes = axes[0,i]
+            ax1: Axes = axes[1,i]
+            ax0.imshow(sample, cmap="gray")
+            ax0.axis("off")
+            ax1.imshow(recon, cmap="gray")
+            ax1.axis("off")
+
+        plt.show()
 
     @staticmethod
     def load(path: str) -> "AutoEncoder":
