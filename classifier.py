@@ -1,7 +1,9 @@
 from typing import *
 from typing import List
 import torch
+import random
 from mnist_encoder import *
+from matplotlib.axes import Axes
 
 class Classifier(MnistEncoder[int]):
 
@@ -76,6 +78,18 @@ class Classifier(MnistEncoder[int]):
         with torch.no_grad():
             for self_param, other_param in zip(self.encoder.parameters(), params, strict=True):
                 self_param[:] = other_param
+
+    def plot_predictions(self) -> None:
+        fig, axes = plt.subplots(nrows=2, ncols=6, figsize=(10,4))
+        for i in range(2):
+            for j in range(6):
+                rand = random.randint(0,self._test_data.shape[0])
+                sample: Image = self.get_image(rand) 
+                number = self.predict(sample)
+                ax: Axes = axes[i,j]
+                ax.set_title(f"prediction={number}")
+                ax.imshow(sample, cmap="gray")
+                ax.axis("off")
 
     @staticmethod
     def load(path: str) -> "Classifier":
