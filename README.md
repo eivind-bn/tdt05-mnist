@@ -44,7 +44,7 @@ else:
 
 
     
-![png](output_4_1.png)
+![png](./images/output_4_1.png)
     
 
 
