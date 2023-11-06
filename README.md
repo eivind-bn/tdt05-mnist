@@ -17,12 +17,8 @@ from classifier import Classifier
 ```python
 # Set to True to load existing models instead.
 load_existing = False
-device = "cuda:0"
+device = "cpu"
 ```
-
-# Autoencoder
-
-In the following cell we train an auto-encoder to learn better representations of the mnist data. We played around with the latent_size setting to find an optimal value, and concluded that it wasn't worth going below 10 as the encoder struggled to efficiently encode the images at the lower latent space.
 
 
 ```python
@@ -44,13 +40,17 @@ else:
 
 
     
-![png](./images/output_4_1.png)
+![png](./images/output_3_1.png)
     
 
 
-Below is comparisons between ground-truths (images from mnist) and the decoder outputs. We frewuently encountered black dots manifesting in the decodings, and we believe this affected the following tuned model's performance.
+Below is comparisons between ground-truths (images from mnist) and the decoder outputs. We frequently encountered black dots manifesting in the decodings, and we believe this affected the following tuned model's performance.
 
 We assumed numerical instabillity, casting errors, or overflow might be the reason behind the black dots, but we haven't discovered the source of this problem yet.
+
+# Autoencoder
+
+In the following cell we train an auto-encoder to learn better representations of the MNIST data. We played around with the latent_size setting to find an optimal value, and concluded that it wasn't worth going below 10 as the encoder struggled to efficiently encode the images at the lower latent space.
 
 
 ```python
@@ -65,7 +65,7 @@ auto_encoder.plot_predictions()
 
 # Pure classifier
 
-Here we train a normal classifier. Note that the hidden layers share the same architecture as the encoder in the auto-encoder. Our models only receives 1% labeled data for training here, and yields adequate results given the small data. This is probably due to simplicity of the mnist dataset.
+Here we train a normal classifier. Note that the hidden layers share the same architecture as the encoder in the auto-encoder. Our models only receives 1% labeled data for training here, and yields adequate results given the small data. This is probably due to simplicity of the MNIST dataset.
 
 
 ```python
